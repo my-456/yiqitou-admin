@@ -8,17 +8,26 @@
       append-to-body
     >
     <!-- <img :src="imageUrl" /> -->
-      <el-form ref="form" :model="form" label-width="80px">
+      <el-form ref="form"  :model="form" label-width="80px">
         <el-form-item label="图片">
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action=""
            :show-file-list="false"
-           :on-success="handleAvatarSuccess"
+           :on-change="handlePictureCardPreview"
            :before-upload="beforeAvatarUpload">
            <img v-if="imageUrl" :src="imageUrl" class="avatar">
            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
+          <!-- <el-upload
+            class="upload-demo"
+            drag
+            action="https://jsonplaceholder.typicode.com/posts/"
+            multiple>
+            <i class="el-icon-upload"></i>
+           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+           <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload> -->
         </el-form-item>
         <el-form-item label="标题">
           <el-input v-model="form.name"></el-input>
@@ -75,16 +84,18 @@ export default {
         copies: '',
         value1: ''
       },
-      imageUrl: ''
+      imageUrl: '',
+      fd: {},
+      file: ''
     }
   },
   methods: {
-    handleAvatarSuccess (res, file) {
-      console.log(res, file)
+    handlePictureCardPreview (file) {
+      console.log(file)
+      this.imageUrl = ''
       this.imageUrl = URL.createObjectURL(file.raw)
-      const fd = new FormData()
-      fd.append('image', file)
-      console.log(fd, this.imageUrl, URL.createObjectURL(file.raw))
+      this.file = file.raw
+      // console.log(file, fd.get('file'), this.imageUrl)
     },
     handleClose () {
       this.$parent.closeEdit()
@@ -95,24 +106,36 @@ export default {
       // const dateEnd = this.form.value1[1]
       const dateStart = '2021-5-10'
       const dateEnd = '2021-10-1'
-      const data = {
-        figure_img: this.form.file,
-        title_name: this.form.name,
-        target_money: this.form.money,
-        initiator: this.form.initiator,
-        date_start: dateStart,
-        date_end: dateEnd,
-        copies: this.form.copies
-      }
-      console.log('上传表单', data)
-      this.getuploadArticle(data)
+      const fd = new FormData()
+      fd.append('figure_img', this.file)
+      fd.append('title_name', this.form.name)
+      fd.append('target_money', this.form.money)
+      fd.append('initiator', this.form.initiator)
+      fd.append('date_start', dateStart)
+      fd.append('date_end', dateEnd)
+      fd.append('copies', this.form.copies)
+      console.log('上传表单', fd)
+      this.getuploadArticle(fd)
       this.$parent.closeEdit()
+      this.$parent.getList()
     },
+    // beforeAvatarUpload (file) {
+    //   console.log(file)
+    //   const isJPG = file.type === 'image/jpeg'
+    //   const isLt2M = file.size / 1024 / 1024 < 5
+    //   if (!isJPG) {
+    //     this.$message.error('上传头像图片只能是 JPG,PNG 格式!')
+    //   }
+    //   if (!isLt2M) {
+    //     this.$message.error('上传头像图片大小不能超过 5MB!')
+    //   }
+    //   return isJPG && isLt2M
+    // },
     // 点击上传
+    beforeAvatarUpload () {},
     async getuploadArticle (data) {
       await uploadArticle(data)
-    },
-    beforeAvatarUpload () {}
+    }
   }
 }
 </script>

@@ -8,77 +8,8 @@
         </el-breadcrumb>
       </div>
       <div class="text item">
-        <div class="header-tab">
-          <el-radio-group v-model="radio1" @change="onChange">
-            <el-radio-button label="false">全部</el-radio-button>
-            <el-radio-button label="true">收藏</el-radio-button>
-          </el-radio-group>
-          <el-button type="success" plain @click="dialogVisible = true"
-            >点击上传</el-button
-          >
-        </div>
-        <el-row :gutter="20">
-          <el-col
-            class="img"
-            :xl="4"
-            :sm="6"
-            :md="6"
-            :lg="4"
-            v-for="image in imageList"
-            :key="image.id"
-            >
-              <el-image
-                style="width: 150px; height: 150px"
-                :src="image.url"
-              ></el-image>
-              <div class="imgBtn">
-                <el-button
-                  :loading="image.loading"
-                  @click="onCollect(image)"
-                  type="warning"
-                  :icon="image.is_collected?'el-icon-star-on':'el-icon-star-off'"
-                  circle
-                  size="small"
-                ></el-button>
-                <el-button @click="onDelete(image)" type="danger" icon="el-icon-delete" circle size="small"></el-button>
-              </div>
-              </el-col>
-        </el-row>
       </div>
     </el-card>
-    <el-dialog
-      title="上传图片"
-      :visible.sync="dialogVisible"
-      :before-close="handleClose"
-      :modal-append-to-body="false"
-    >
-      <el-upload
-        class="upload-demo"
-        drag
-        action="http://api-toutiao-web.itheima.net/mp/v1_0/user/images"
-        :headers="header"
-        multiple
-        name="image"
-        :on-success="uploadSuccess"
-      >
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">
-          只能上传jpg/png文件，且不超过500kb
-        </div>
-      </el-upload>
-    </el-dialog>
-
-    <div class="block">
-      <el-pagination
-        layout="prev, pager, next"
-        :total="total"
-        @current-change="onCurrentChange"
-        :page-size='pages.per_page'
-        :current-page.sync="pages.page"
-        >
-      </el-pagination>
-    </div>
   </div>
 </template>
 

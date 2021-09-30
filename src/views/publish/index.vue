@@ -8,38 +8,22 @@
         </el-breadcrumb>
       </div>
       <el-form ref="form" :rules="formRules" :model="form" label-width="80px">
-        <el-form-item label="标题" prop="title">
-          <el-input  v-model="article.title" placeholder="请输入标题"></el-input>
+        <el-form-item label="活动名称">
+          <el-input v-model="article.title"></el-input>
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-tiptap height="400" lang="zh" :extensions="extensions" v-model="article.content"></el-tiptap>
-        </el-form-item>
-        <el-form-item label="封面" >
-          <el-radio-group v-model="article.cover.type">
-            <el-radio :label="1">单图</el-radio>
-            <el-radio :label="3">三图</el-radio>
-            <el-radio :label="0">无图</el-radio>
-            <el-radio :label="-1">自动</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="活动区域" prop="channel">
-          <el-select v-model="article.channel_id" placeholder="请选择活动区域">
-            <el-option v-for="(item,index) in channels" :key="index" :label="item.name" :value="item.id"></el-option>
-          </el-select>
+          <el-tiptap height="400" lang="zh" :extensions="extensions" v-model="article.describe"></el-tiptap>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit(false)">{{$route.query.id ? '修改文章' : '发布文章'}}</el-button>
-          <el-button @click="onSubmit(true)">存入草稿</el-button>
         </el-form-item>
       </el-form>
     </el-card>
   </div>
 </template>
-
 <script>
 import 'element-tiptap/lib/index.css'
-import { getArticleChannels, addArticle, updateArticle, getArticle } from '../../api/info'
-import { uploadImage } from '../../api/image'
+import { uploadText } from '../../api/info'
 // Awesome Vue 官方收录的相关资源列表 引入tiptap
 import {
   ElementTiptap,
@@ -81,9 +65,11 @@ export default {
         new Image({
         // 默认会把图片生成base64
           async uploadRequest (file) {
+            console.log(file)
             const fd = new FormData()
             fd.append('image', file)
-            const res = await uploadImage(fd)
+            const res = await uploadText(fd)
+            console.log(res)
             return res.data.data.url
           }
         }),
@@ -101,41 +87,19 @@ export default {
       },
       article: {
         title: '',
-        content: '',
-        cover: {
-          type: 0,
-          image: []
-        },
-        channel_id: ''
+        describe: '',
+        date: '2020-10-1'
       },
       channels: [],
       formRules: {
         title: [
           { required: true, message: '请输入文章标题', trigger: 'blur' },
           { min: 5, max: 30, message: '长度在5到30个字符', trigger: 'blur' }
-        ],
-        content: [
-          {
-            validator (rule, value, callback) {
-              if (value === '<p></p>') {
-              // 验证失败
-                callback(new Error('请输入文章内容'))
-              } else {
-              // 验证通过
-                callback()
-              }
-            }
-          },
-          { required: true, message: '请输入文章内容', trigger: 'blur' }
-        ],
-        channel: [
-          { required: true, message: '请选择活动区域', trigger: 'blur' }
         ]
       }
     }
   },
   created () {
-    this.getInfo()
     // 判断如果请求路径中有id，则展示文章内容
     if (this.$route.query.id) {
       this.loadAticle()
@@ -149,30 +113,14 @@ export default {
         }
       })
       if (this.$route.query.di) {
-        await updateArticle(this.article, draft)
-        this.$message({
-          message: '修改成功',
-          type: 'success'
-        })
       } else {
-        await addArticle(this.article, draft)
+        await uploadText(this.article)
         this.$message({
           message: '发布成功',
           type: 'success'
         })
       }
       console.log('提交')
-    },
-    async getInfo () {
-      const res = await getArticleChannels()
-      this.channels = res.data.data.channels
-      console.log(res)
-    },
-    // 加载文章内容
-    async loadAticle () {
-      const res = await getArticle(this.$route.query.id)
-      this.article = res.data.data
-      console.log(res)
     }
   }
 }

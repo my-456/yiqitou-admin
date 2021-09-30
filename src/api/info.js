@@ -18,6 +18,19 @@ export const uploadArticle = (data) => {
   return request({
     url: '/subscribe/insert_subscribe',
     method: 'post',
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+/**
+ * 富文本上传
+ */
+export const uploadText = (data) => {
+  return request({
+    url: '/subscribe/insert_message',
+    method: 'post',
     data
   })
 }
